@@ -1,5 +1,7 @@
 import streamlit as st
-import google.generativeai as genai
+from google import genai
+from PIL import Image
+import io
 
 st.set_page_config(page_title="美容絵コンテ自動生成", layout="wide")
 st.title("美容台本 イラスト自動生成Webアプリ")
@@ -11,27 +13,33 @@ if st.button("イラストを生成する"):
     if not api_key:
         st.warning("APIキーを入力してください。")
     else:
-        st.info("最新のNano Banana 2でイラストを生成中。少々お待ちください。")
+        st.info("最新のImagen 3でイラストを生成中。少々お待ちください。")
         try:
-            genai.configure(api_key=api_key)
+            # 完全に新しい「google-genai」の呼び出し方
+            client = genai.Client(api_key=api_key)
+            
             sentences = script_text.split("。")
             sentences = [s.strip() + "。" for s in sentences if s.strip()]
 
             for index, sentence in enumerate(sentences):
+                # 空の行を無視する
+                if len(sentence) <= 1:
+                    continue
+                    
                 st.subheader(f"シーン {index + 1}")
                 st.write(sentence)
                 
-                # 画像生成機能の有無をチェックして実行
-                if hasattr(genai, 'ImageGenerationModel'):
-                    model = genai.ImageGenerationModel("imagen-3.0-generate-001")
-                    response = model.generate_images(
-                        prompt=f"美容広告用の高品質なイラスト。余計な文字は不要。内容：{sentence}",
-                        number_of_images=1
-                    )
-                    if response.images:
-                        st.image(response.images[0].image, caption=f"シーン {index + 1}")
-                else:
-                    st.error("エラー：サーバーの道具がまだ古いです。アプリの『Delete & Recreate』を試してください。")
+                # 画像生成（新しい専用の関数を使用）
+                result = client.models.generate_images(
+                    model='imagen-3.0-generate-001',
+                    prompt=f"美容広告用の高品質なイラスト。余計な文字は不要。内容：{sentence}",
+                    config=dict(number_of_images=1)
+                )
+                
+                # 画像データを復元して画面に表示
+                for generated_image in result.generated_images:
+                    image = Image.open(io.BytesIO(generated_image.image.image_bytes))
+                    st.image(image, caption=f"シーン {index + 1}")
                 
                 st.markdown("---")
         except Exception as e:
