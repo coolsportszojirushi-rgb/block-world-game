@@ -15,23 +15,21 @@ if st.button("イラストを生成する"):
     else:
         st.info("最新のImagen 3でイラストを生成中。少々お待ちください。")
         try:
-            # 完全に新しい「google-genai」の呼び出し方
             client = genai.Client(api_key=api_key)
             
             sentences = script_text.split("。")
             sentences = [s.strip() + "。" for s in sentences if s.strip()]
 
             for index, sentence in enumerate(sentences):
-                # 空の行を無視する
                 if len(sentence) <= 1:
                     continue
                     
                 st.subheader(f"シーン {index + 1}")
                 st.write(sentence)
                 
-                # 画像生成（新しい専用の関数を使用）
+                # 画像生成を実行する正しいモデル名（002）を指定
                 result = client.models.generate_images(
-                    model='imagen-3.0-generate-001',
+                    model='imagen-3.0-generate-002',
                     prompt=f"美容広告用の高品質なイラスト。余計な文字は不要。内容：{sentence}",
                     config=dict(number_of_images=1)
                 )
