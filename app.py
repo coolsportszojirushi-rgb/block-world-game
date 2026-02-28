@@ -18,13 +18,21 @@ if st.button("イラストを生成する"):
     else:
         st.info("Imagen 3 でイラストを生成中...")
         try:
-            client = genai.Client(api_key=api_key)
+           client = genai.Client(api_key=api_key)
 
-            sentences = script_text.split("。")
-            sentences = [s.strip() + "。" for s in sentences if s.strip()]
+response = client.models.generate_content(
+    model="gemini-2.0-flash-exp-image-generation",
+    contents=f"美容・コスメ広告用の高品質な正方形イラスト。余計な文字は不要。内容：{sentence}",
+    config=types.GenerateContentConfig(
+        response_modalities=["IMAGE", "TEXT"]
+    )
+)
 
-            for index, sentence in enumerate(sentences):
-                st.subheader(f"シーン {index + 1}")
+for part in response.candidates[0].content.parts:
+    if part.inline_data is not None:
+        import io
+        image = Image.open(io.BytesIO(part.inline_data.data))
+        st.image(image, caption=f"シーン {index + 1}")
                 st.write(sentence)
 
                 try:
