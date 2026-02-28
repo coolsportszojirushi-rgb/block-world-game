@@ -13,7 +13,7 @@ if st.button("イラストを生成する"):
     if not api_key:
         st.warning("APIキーを入力してください。")
     else:
-        st.info("最新のImagen 3でイラストを生成中。少々お待ちください。")
+        st.info("最新の画像生成AIでイラストを作成中です。少々お待ちください。")
         try:
             client = genai.Client(api_key=api_key)
             
@@ -27,14 +27,13 @@ if st.button("イラストを生成する"):
                 st.subheader(f"シーン {index + 1}")
                 st.write(sentence)
                 
-                # 画像生成を実行する正しいモデル名（002）を指定
+                # エラーの原因だったモデル名を最新のImagen 4に修正しています
                 result = client.models.generate_images(
-                    model='imagen-3.0-generate-002',
+                    model='imagen-4.0-generate-001',
                     prompt=f"美容広告用の高品質なイラスト。余計な文字は不要。内容：{sentence}",
                     config=dict(number_of_images=1)
                 )
                 
-                # 画像データを復元して画面に表示
                 for generated_image in result.generated_images:
                     image = Image.open(io.BytesIO(generated_image.image.image_bytes))
                     st.image(image, caption=f"シーン {index + 1}")
