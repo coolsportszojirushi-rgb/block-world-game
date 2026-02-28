@@ -1,6 +1,8 @@
 import streamlit as st
 from google import genai
 from google.genai import types
+from PIL import Image
+import io
 
 # 基本設定
 st.set_page_config(page_title="美容絵コンテ自動生成", layout="wide")
@@ -16,35 +18,30 @@ if st.button("イラストを生成する"):
     if not api_key:
         st.warning("APIキーを入力してください。")
     else:
-        st.info("Imagen 3 でイラストを生成中...")
+        st.info("Gemini でイラストを生成中...")
         try:
-           client = genai.Client(api_key=api_key)
+            client = genai.Client(api_key=api_key)
 
-response = client.models.generate_content(
-    model="gemini-2.0-flash-exp-image-generation",
-    contents=f"美容・コスメ広告用の高品質な正方形イラスト。余計な文字は不要。内容：{sentence}",
-    config=types.GenerateContentConfig(
-        response_modalities=["IMAGE", "TEXT"]
-    )
-)
+            sentences = script_text.split("。")
+            sentences = [s.strip() + "。" for s in sentences if s.strip()]
 
-for part in response.candidates[0].content.parts:
-    if part.inline_data is not None:
-        import io
-        image = Image.open(io.BytesIO(part.inline_data.data))
-        st.image(image, caption=f"シーン {index + 1}")
+            for index, sentence in enumerate(sentences):
+                st.subheader(f"シーン {index + 1}")
                 st.write(sentence)
 
                 try:
-                    response = client.models.generate_images(
-                        model="imagen-3.0-generate-001",
-                        prompt=f"美容・コスメ広告用の高品質な正方形イラスト。余計な文字は不要。内容：{sentence}",
-                        config=types.GenerateImagesConfig(number_of_images=1)
+                    response = client.models.generate_content(
+                        model="gemini-2.0-flash-exp-image-generation",
+                        contents=f"美容・コスメ広告用の高品質な正方形イラスト。余計な文字は不要。内容：{sentence}",
+                        config=types.GenerateContentConfig(
+                            response_modalities=["IMAGE", "TEXT"]
+                        )
                     )
 
-                    if response.generated_images:
-                        for img in response.generated_images:
-                            st.image(img.image.image_bytes, caption=f"シーン {index + 1}")
+                    for part in response.candidates[0].content.parts:
+                        if part.inline_data is not None:
+                            image = Image.open(io.BytesIO(part.inline_data.data))
+                            st.image(image, caption=f"シーン {index + 1}")
 
                 except Exception as inner_e:
                     st.error(f"画像生成エラー：{inner_e}")
