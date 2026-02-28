@@ -11,7 +11,7 @@ if st.button("イラストを生成する"):
     if not api_key:
         st.warning("APIキーを入力してください。")
     else:
-        st.info("Nano Banana 2（最新AI）でイラストを生成中。少々お待ちください。")
+        st.info("最新のNano Banana 2でイラストを生成中。少々お待ちください。")
         try:
             genai.configure(api_key=api_key)
             sentences = script_text.split("。")
@@ -21,7 +21,7 @@ if st.button("イラストを生成する"):
                 st.subheader(f"シーン {index + 1}")
                 st.write(sentence)
                 
-                # 画像生成モデルの呼び出し
+                # 画像生成モデルの呼び出し（ここが最新の機能です）
                 model = genai.ImageGenerationModel("imagen-3.0-generate-001")
                 response = model.generate_images(
                     prompt=f"美容広告用の高品質なイラスト。余計な文字は不要。内容：{sentence}",
