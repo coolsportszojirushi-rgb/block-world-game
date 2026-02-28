@@ -32,7 +32,7 @@ if st.button("イラストを生成する"):
                 try:
                     response = client.models.generate_content(
                         model="gemini-2.0-flash-exp-image-generation",
-                        contents=f"美容・コスメ広告用の高品質な正方形イラスト。余計な文字は不要。内容：{sentence}",
+                        contents=f"High quality square illustration for beauty cosmetics advertisement. No text, no letters, no words in the image. Visual only. Content: {sentence}",
                         config=types.GenerateContentConfig(
                             response_modalities=["IMAGE", "TEXT"]
                         )
